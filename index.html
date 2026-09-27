@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WordTally — Free Word Counter, Readability & SEO Text Analyzer</title>
+<meta name="description" content="WordTally is a free online word counter with live stats, keyword density, Flesch readability score, speaking-time estimates and an SEO title/meta length checker with live SERP preview. No signup, unlimited usage.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { forest: '#166534', moss: '#14532d', paper: '#FDFCF7', ink: '#1c2b21', sage: '#e7efe6', fern: '#22c55e' },
+      fontFamily: { serif: ['"Playfair Display"','Georgia','serif'], body: ['Lora','Georgia','serif'] }
+    }
+  }
+}
+</script>
+<style>
+  body { background:#FDFCF7; color:#1c2b21; font-family:'Lora',Georgia,serif; }
+  .serif { font-family:'Playfair Display',Georgia,serif; }
+  .rule-double { border-top:1px solid #166534; position:relative; }
+  .rule-double::after { content:''; display:block; border-top:1px solid #166534; margin-top:3px; opacity:.45; }
+  textarea:focus { outline:none; }
+  .tabbtn[aria-selected="true"] { background:#166534; color:#FDFCF7; }
+  .kwbar { transition: width .35s ease; }
+  ::selection { background:#bbf7d0; }
+  .no-print { }
+</style>
+</head>
+<body id="top" class="antialiased">
+
+<!-- ===== Header ===== -->
+<header class="sticky top-0 z-50 bg-[#FDFCF7]/95 backdrop-blur border-b border-[#166534]/20">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="serif text-2xl font-bold text-forest tracking-tight">Word<span class="italic">Tally</span></a>
+    <nav class="text-sm sm:text-base font-body">
+      <a href="#top" class="text-ink hover:text-forest mr-5 sm:mr-8 transition">Home</a>
+      <a href="https://fixoraa.tech" class="text-ink hover:text-forest transition">More Tools</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== TOP AD ===== -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <div class="origin-top scale-[0.44] sm:scale-100 shrink-0">
+        <script>
+          atOptions = { 'key' : '4e68ac77881c17fe128a46565d9a4e8c', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/4e68ac77881c17fe128a46565d9a4e8c/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Hero ===== -->
+<main class="mx-auto max-w-6xl px-4 sm:px-6">
+  <section class="text-center pt-10 sm:pt-14 pb-8">
+    <p class="text-xs tracking-[0.3em] uppercase text-forest/70 mb-4">A writer&rsquo;s quiet workbench</p>
+    <h1 class="serif text-4xl sm:text-6xl font-bold text-ink leading-tight">Count every word.<br><span class="italic text-forest">Understand</span> every sentence.</h1>
+    <p class="mt-5 max-w-2xl mx-auto text-base sm:text-lg text-ink/70">Paste your draft below and watch live word counts, keyword density, Flesch readability, speaking time and SEO checks appear as you type — free, private, unlimited.</p>
+    <div class="mt-6 inline-flex items-center gap-2 border border-forest/40 rounded-full px-5 py-2 text-sm text-forest bg-sage/60">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+      Unlimited Free Usage — no signup, no paywall, no watermark
+    </div>
+  </section>
+
+  <!-- ===== Tool: editor card ===== -->
+  <section aria-label="Word counter tool" class="pb-4">
+    <div class="bg-white rounded-2xl shadow-[0_10px_40px_-15px_rgba(22,101,52,0.25)] border border-forest/15 overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-8 pt-5 pb-4 border-b border-forest/10">
+        <h2 class="serif text-xl sm:text-2xl font-semibold text-ink">Your manuscript</h2>
+        <div class="flex flex-wrap gap-2 text-sm">
+          <button id="btnCopy" class="px-4 py-2 rounded-full border border-forest/40 text-forest hover:bg-forest hover:text-paper transition">Copy report</button>
+          <button id="btnDownload" class="px-4 py-2 rounded-full border border-forest/40 text-forest hover:bg-forest hover:text-paper transition">Download .txt</button>
+          <button id="btnClear" class="px-4 py-2 rounded-full border border-red-800/40 text-red-800 hover:bg-red-800 hover:text-paper transition">Clear</button>
+        </div>
+      </div>
+      <textarea id="editor" rows="12" placeholder="Start typing or paste your text here… Your draft is saved automatically in this browser and never leaves your device."
+        class="w-full px-5 sm:px-8 py-6 text-base sm:text-lg leading-relaxed bg-[#fffefb] resize-y min-h-[260px] placeholder:text-ink/30"></textarea>
+      <div class="px-5 sm:px-8 pb-5 pt-1 flex flex-wrap items-center gap-3 text-sm text-ink/60">
+        <label for="goalInput" class="font-medium text-ink/70">Word goal</label>
+        <input id="goalInput" type="number" min="0" placeholder="e.g. 1000" class="w-32 px-3 py-1.5 rounded-lg border border-forest/30 bg-white text-ink">
+        <div class="flex-1 min-w-[140px] h-2.5 rounded-full bg-sage overflow-hidden">
+          <div id="goalBar" class="h-full rounded-full bg-forest kwbar" style="width:0%"></div>
+        </div>
+        <span id="goalLabel" class="tabular-nums">0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Live stats strip -->
+    <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4" id="statsGrid">
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statWords" class="serif text-3xl sm:text-4xl font-bold text-forest tabular-nums">0</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Words</div>
+      </div>
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statChars" class="serif text-3xl sm:text-4xl font-bold text-forest tabular-nums">0</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Characters</div>
+      </div>
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statCharsNoSpace" class="serif text-3xl sm:text-4xl font-bold text-forest tabular-nums">0</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Chars (no spaces)</div>
+      </div>
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statSentences" class="serif text-3xl sm:text-4xl font-bold text-forest tabular-nums">0</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Sentences</div>
+      </div>
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statParagraphs" class="serif text-3xl sm:text-4xl font-bold text-forest tabular-nums">0</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Paragraphs</div>
+      </div>
+      <div class="bg-white border border-forest/15 rounded-xl p-4 text-center shadow-sm">
+        <div id="statReading" class="serif text-2xl sm:text-3xl font-bold text-forest tabular-nums pt-1">0 s</div>
+        <div class="text-xs tracking-widest uppercase text-ink/50 mt-1">Reading time</div>
+      </div>
+    </div>
+    <p class="text-center text-xs text-ink/40 mt-4 italic">Counts update live as you type. Everything runs in your browser — your text is never uploaded anywhere.</p>
+  </section>
+
+  <!-- ===== Analysis panels ===== -->
+  <section aria-label="Text analysis" class="py-10">
+    <div class="rule-double mb-2"></div>
+    <h2 class="serif text-3xl sm:text-4xl font-bold text-center text-ink pt-8 pb-3">Deeper than a count</h2>
+    <p class="text-center text-ink/60 max-w-2xl mx-auto pb-10">Four instruments on the writer&rsquo;s desk — density, readability, voice and search — tuned by the same live text.</p>
+
+    <div class="grid md:grid-cols-2 gap-5 sm:gap-6">
+      <!-- 1. Keyword density -->
+      <div class="bg-white border border-forest/15 rounded-2xl p-5 sm:p-7 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+          <h3 class="serif text-2xl font-semibold text-ink">Keyword density</h3>
+          <div class="flex rounded-full border border-forest/30 overflow-hidden text-sm" role="tablist" aria-label="Phrase length">
+            <button id="kwTab1" role="tab" aria-selected="true" class="tabbtn px-4 py-1.5 text-forest transition">1-word</button>
+            <button id="kwTab2" role="tab" aria-selected="false" class="tabbtn px-4 py-1.5 text-forest transition">2-word phrases</button>
+          </div>
+        </div>
+        <p class="text-sm text-ink/55 mb-4">Top 10 terms, stop-words filtered. A healthy focus keyword usually sits between 1–2%.</p>
+        <div id="kwList" class="space-y-2.5 text-sm"></div>
+      </div>
+
+      <!-- 2. Readability -->
+      <div class="bg-white border border-forest/15 rounded-2xl p-5 sm:p-7 shadow-sm">
+        <h3 class="serif text-2xl font-semibold text-ink mb-1">Readability</h3>
+        <p class="text-sm text-ink/55 mb-4">Flesch Reading Ease (0–100, higher is easier) and the matching US grade level.</p>
+        <div class="flex items-center gap-5">
+          <div class="shrink-0 w-28 h-28 rounded-full border-[6px] border-forest/20 flex flex-col items-center justify-center bg-sage/50">
+            <span id="fleschScore" class="serif text-3xl font-bold text-forest tabular-nums">—</span>
+            <span class="text-[10px] uppercase tracking-widest text-ink/50">Flesch</span>
+          </div>
+          <div class="text-sm space-y-1.5">
+            <p><span class="text-ink/50">Verdict:</span> <strong id="fleschBand" class="text-ink">—</strong></p>
+            <p><span class="text-ink/50">Grade level:</span> <strong id="fleschGrade" class="text-ink">—</strong></p>
+            <p><span class="text-ink/50">Avg. sentence:</span> <strong id="avgSentLen" class="text-ink">—</strong></p>
+            <p><span class="text-ink/50">Avg. word:</span> <strong id="avgWordLen" class="text-ink">—</strong></p>
+          </div>
+        </div>
+        <div class="mt-4 h-2.5 rounded-full bg-gradient-to-r from-red-400 via-amber-300 to-forest relative" aria-hidden="true">
+          <div id="fleschMarker" class="absolute -top-1 w-1.5 h-[18px] bg-ink rounded transition-all" style="left:50%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-ink/45 mt-1"><span>Very difficult</span><span>Standard</span><span>Very easy</span></div>
+      </div>
+
+      <!-- 3. Speaking time -->
+      <div class="bg-white border border-forest/15 rounded-2xl p-5 sm:p-7 shadow-sm">
+        <h3 class="serif text-2xl font-semibold text-ink mb-1">Speaking time</h3>
+        <p class="text-sm text-ink/55 mb-4">Choose a delivery pace — scripts are spoken slower than they are read.</p>
+        <div class="flex flex-wrap gap-2 mb-4 text-sm" role="radiogroup" aria-label="Speaking pace">
+          <button class="pacebtn px-4 py-2 rounded-full border border-forest/40 text-forest transition" data-wpm="110" role="radio" aria-checked="false">Slow · 110 wpm</button>
+          <button class="pacebtn px-4 py-2 rounded-full border border-forest/40 text-forest transition bg-forest text-paper" data-wpm="140" role="radio" aria-checked="true">Normal · 140 wpm</button>
+          <button class="pacebtn px-4 py-2 rounded-full border border-forest/40 text-forest transition" data-wpm="170" role="radio" aria-checked="false">Fast · 170 wpm</button>
+        </div>
+        <p class="serif text-4xl font-bold text-forest tabular-nums" id="speakTime">0 s</p>
+        <p class="text-sm text-ink/55 mt-1">to read your text aloud at the selected pace.</p>
+        <div class="mt-5 pt-4 border-t border-forest/10 flex flex-wrap items-center gap-3 text-sm">
+          <label for="talkMin" class="text-ink/70">For a <input id="talkMin" type="number" min="1" value="5" class="w-16 px-2 py-1 rounded-lg border border-forest/30 text-ink mx-1">-minute talk you need ≈</label>
+          <strong id="talkWords" class="serif text-xl text-forest tabular-nums">700 words</strong>
+        </div>
+      </div>
+
+      <!-- 4. SEO checker -->
+      <div class="bg-white border border-forest/15 rounded-2xl p-5 sm:p-7 shadow-sm">
+        <h3 class="serif text-2xl font-semibold text-ink mb-1">SEO title &amp; meta checker</h3>
+        <p class="text-sm text-ink/55 mb-4">Draft your search snippet and see exactly how Google will show it — characters, pixel width and truncation.</p>
+        <label class="block text-xs uppercase tracking-widest text-ink/50 mb-1" for="seoTitle">Meta title</label>
+        <input id="seoTitle" type="text" placeholder="Your page title…" class="w-full px-4 py-2.5 rounded-xl border border-forest/30 bg-[#fffefb] text-ink mb-1">
+        <div class="flex items-center gap-3 text-sm mb-3">
+          <span id="seoTitleChars" class="tabular-nums text-ink/60">0 chars</span>
+          <span id="seoTitlePx" class="tabular-nums text-ink/60">0 px</span>
+          <span id="seoTitleBadge" class="ml-auto px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-500">Waiting</span>
+        </div>
+        <label class="block text-xs uppercase tracking-widest text-ink/50 mb-1" for="seoMeta">Meta description</label>
+        <textarea id="seoMeta" rows="2" placeholder="Your meta description…" class="w-full px-4 py-2.5 rounded-xl border border-forest/30 bg-[#fffefb] text-ink mb-1 resize-y"></textarea>
+        <div class="flex items-center gap-3 text-sm mb-4">
+          <span id="seoMetaChars" class="tabular-nums text-ink/60">0 chars</span>
+          <span id="seoMetaBadge" class="ml-auto px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-500">Waiting</span>
+        </div>
+        <div class="rounded-xl border border-forest/20 bg-[#fffefb] p-4">
+          <p class="text-[11px] uppercase tracking-widest text-ink/40 mb-2">Live SERP preview</p>
+          <p id="serpUrl" class="text-sm text-[#1a5c2e] truncate">example.com › page</p>
+          <p id="serpTitle" class="text-lg text-[#1a0dab] leading-snug hover:underline cursor-pointer break-words">Your title will appear here</p>
+          <p id="serpDesc" class="text-sm text-[#4d5156] leading-snug break-words">Your meta description will appear here, just as Google would render it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== BOTTOM AD ===== -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pb-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <script async src="https://js.wpadmngr.com/static/adManager.js" data-admpid="464498"></script>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEO article ===== -->
+<article class="mx-auto max-w-3xl px-4 sm:px-6 pb-14 text-ink/80 leading-relaxed text-[1.02rem]">
+  <div class="rule-double mb-10"></div>
+  <h2 class="serif text-3xl sm:text-4xl font-bold text-ink mb-6">Why counting words is only the beginning of good writing</h2>
+
+  <p class="mb-5">Every writer has felt it: the essay that must be <em>exactly</em> 1,500 words, the college application capped at 650, the product description that cannot spill past 160 characters. A word counter answers the simplest version of that anxiety — "how long is this?" — in a fraction of a second. But length is never really the question. The real question is whether the length serves the reader, the platform and the purpose. That is where a thoughtful text analyzer earns its place on the writer's desk.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">The anatomy of a count</h3>
+  <p class="mb-5">When WordTally reports your statistics, five numbers work together. The <strong>word count</strong> is the headline figure — the one assignments, editors and publishers quote. The <strong>character count</strong> matters wherever hard limits are enforced: social media bios, form fields, SMS segments and code comments. Characters <em>without spaces</em> are the currency of translators and many freelance marketplaces, which price work by the character. <strong>Sentences</strong> reveal structure: a 1,000-word piece made of 40 sentences reads very differently from one made of 12. And <strong>paragraphs</strong> show breathing room — long, unbroken paragraphs fatigue readers on screens, where white space is a courtesy.</p>
+  <p class="mb-5">These five figures update live as you type because writing to a target is a feedback loop, not a final audit. A novelist watching a daily goal climb toward 2,000 words writes differently from one who counts at midnight. A student pasting a finished essay into a counter gets a verdict; a student writing <em>inside</em> a counter gets a compass.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">Keyword density: seasoning, not stuffing</h3>
+  <p class="mb-5">Search engines long ago stopped rewarding pages that repeat a phrase twenty times. Modern keyword analysis is about proportion and naturalness. Keyword density — the number of times a term appears divided by the total word count, expressed as a percentage — tells you whether your focus topic is present enough to be understood and absent enough to sound human.</p>
+  <p class="mb-5">As a rule of thumb, a primary keyword density between <strong>1% and 2%</strong> reads naturally for most articles. Below 0.5%, the page may drift off-topic; above 3%, readers (and search algorithms) start to notice repetition. WordTally's density table strips out stop words — the <em>the</em>, <em>and</em>, <em>is</em> scaffolding of English — so the top ten list shows the words that actually carry meaning. The two-word phrase view goes further: it catches the multi-word topics you are really writing about, like "content marketing" or "morning routine", which single-word counts would scatter.</p>
+  <p class="mb-5">Use the table as an editing mirror. If your article about "home composting" never shows <em>compost</em> in the top ten, the draft may be vaguer than you think. If it shows <em>compost</em> at 6%, you are probably repeating yourself and can replace a few instances with pronouns or synonyms. Density is seasoning: essential, but nobody wants a mouthful of salt.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">Readability: the Flesch Reading Ease score</h3>
+  <p class="mb-5">In the 1940s, Rudolf Flesch devised a formula that still powers readability analysis today. The Flesch Reading Ease score combines two measurements — average sentence length and average syllables per word — into a single number from 0 to 100. Higher is easier. A score of 90–100 reads like a comic book; 60–70 is plain English suitable for most adults; 30–50 is academic or legal prose that demands concentration.</p>
+  <p class="mb-5">The matching Flesch-Kincaid grade level translates the same measurements into US school grades: a grade level of 8 means a typical eighth-grader can read the text comfortably. Most professional writing aimed at a general audience targets a Reading Ease of 60–70 and a grade level of 7–9. That is not dumbing down; it is respecting the reader's attention. Insurance policies and government forms score poorly precisely because they were written for the institution, not the human.</p>
+  <p class="mb-5">How do you raise a low score? Shorten your longest sentences first — WordTally shows your average sentence length so you know where you stand. Then swap a few Latinate mouthfuls for plain words: <em>utilize</em> becomes <em>use</em>, <em>facilitate</em> becomes <em>help</em>. You do not need to rewrite everything; moving a draft from 45 to 62 often takes ten minutes of targeted trimming, and readers feel the difference immediately.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">Speaking time: writing for the ear</h3>
+  <p class="mb-5">A script is not an article. Spoken language moves at roughly <strong>130–150 words per minute</strong> for a natural conversational pace, slower than the 200–250 words per minute of silent reading, because speech is paced by breath, articulation and the audience's need to process sound in real time. Formal oratory drops toward 110 words per minute; an excited product demo can push past 170.</p>
+  <p class="mb-5">This matters enormously for anyone who presents: a five-minute conference slot needs roughly 650–700 words at a normal pace, not the 1,200 a writer might draft. Podcasts, wedding toasts, classroom lectures and voiceover scripts all live or die by this arithmetic. WordTally's pace presets let you audition the same text at slow, normal and fast delivery, and the reverse calculator answers the planner's question directly: <em>how many words do I need for a ten-minute talk?</em> Write to that number, rehearse once, and you will land on time.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">The 60-character storefront: titles and meta descriptions</h3>
+  <p class="mb-5">Your meta title and description are the only part of your page most searchers ever see. Google renders titles at roughly <strong>600 pixels wide</strong> — about 50–60 characters depending on letter widths — and truncates the rest with an ellipsis. Meta descriptions get about <strong>155–160 characters</strong> on desktop, fewer on mobile. A brilliant 90-character title that gets cut mid-word at character 58 is, functionally, a 58-character title with an ugly ending.</p>
+  <p class="mb-5">Character counts alone are an approximation, because Google measures pixels, not characters: a title full of wide capitals and W's exhausts its 600 pixels far sooner than one in narrow lowercase. That is why WordTally measures your title's actual rendered pixel width in the browser, alongside the character count, and shows a live preview styled like a real search result. Aim for 50–60 characters and under 600 pixels for titles; 120–155 characters for descriptions. Put the primary keyword near the front of the title, because even a perfectly sized title competes with a dozen neighbors, and the first three words do most of the persuading.</p>
+
+  <h3 class="serif text-2xl font-semibold text-ink mt-10 mb-4">A quieter way to work</h3>
+  <p class="mb-5">The best writing tools disappear. WordTally keeps your draft in your browser's own storage — nothing is uploaded, nothing is analyzed on a server, and the page works offline once loaded. Set a word goal and watch the green bar fill; it is a small ritual, but rituals are how books get finished. Copy a formatted report when an editor asks for the stats, or download the plain text for your archive.</p>
+  <p class="mb-5">Counting words will never make a sentence beautiful. But knowing your length, your density, your readability, your speaking time and your snippet — knowing the <em>shape</em> of what you have made — gives every revision a direction. The muse provides the words; the tally keeps them honest.</p>
+
+  <!-- FAQs -->
+  <h2 class="serif text-3xl font-bold text-ink mt-14 mb-6">Frequently asked questions</h2>
+  <div class="space-y-4">
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">How does WordTally count words?</summary>
+      <p class="mt-2 text-ink/70">Words are sequences of letters and numbers separated by spaces or punctuation, counted with full Unicode support — so accented characters and non-Latin scripts are handled correctly. Hyphenated compounds and contractions count as single words, matching how most word processors behave.</p>
+    </details>
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">Is my text uploaded or stored anywhere?</summary>
+      <p class="mt-2 text-ink/70">No. Every calculation happens locally in your browser with JavaScript. Your draft is saved only in your own browser's local storage so it survives a refresh, and it never travels to any server. You can use WordTally for confidential drafts with confidence.</p>
+    </details>
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">What is a good Flesch Reading Ease score?</summary>
+      <p class="mt-2 text-ink/70">For general audiences, aim for 60–70 ("plain English") with a Flesch-Kincaid grade level of 7–9. Scores of 80+ suit young readers; 50 and below suit academic or professional readers who expect density. Match the score to your audience rather than chasing the highest number.</p>
+    </details>
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">What keyword density should I aim for?</summary>
+      <p class="mt-2 text-ink/70">Around 1–2% for your primary keyword is a healthy, natural range. Below 0.5% the topic may be unclear; above 3% the repetition becomes noticeable to readers and search engines. Focus on covering the topic thoroughly — density is a diagnostic, not a target to game.</p>
+    </details>
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">How many words do I need for a 5-minute speech?</summary>
+      <p class="mt-2 text-ink/70">About 650–750 words at a normal speaking pace of 130–150 words per minute. Formal or slow delivery needs fewer words (around 550), while a fast, energetic pace can stretch to 850. WordTally's speaking-time panel converts both directions: text to minutes, and minutes to a word target.</p>
+    </details>
+    <details class="bg-white border border-forest/15 rounded-xl p-5">
+      <summary class="serif text-lg font-semibold text-ink cursor-pointer">Why does Google cut off my page title?</summary>
+      <p class="mt-2 text-ink/70">Google truncates titles by pixel width (roughly 600 pixels, about 50–60 characters), not by a fixed character count — wide letters like W and capitals consume more space. Keep titles under 60 characters and 600 pixels, put the keyword first, and use WordTally's live SERP preview to check before you publish.</p>
+    </details>
+  </div>
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How does WordTally count words?", "acceptedAnswer": {"@type": "Answer", "text": "Words are sequences of letters and numbers separated by spaces or punctuation, counted with full Unicode support. Hyphenated compounds and contractions count as single words, matching how most word processors behave."}},
+    {"@type": "Question", "name": "Is my text uploaded or stored anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every calculation happens locally in your browser. Your draft is saved only in your own browser's local storage and never travels to any server."}},
+    {"@type": "Question", "name": "What is a good Flesch Reading Ease score?", "acceptedAnswer": {"@type": "Answer", "text": "For general audiences, aim for 60-70 (plain English) with a Flesch-Kincaid grade level of 7-9. Match the score to your audience rather than chasing the highest number."}},
+    {"@type": "Question", "name": "What keyword density should I aim for?", "acceptedAnswer": {"@type": "Answer", "text": "Around 1-2% for your primary keyword is a healthy, natural range. Below 0.5% the topic may be unclear; above 3% repetition becomes noticeable."}},
+    {"@type": "Question", "name": "How many words do I need for a 5-minute speech?", "acceptedAnswer": {"@type": "Answer", "text": "About 650-750 words at a normal speaking pace of 130-150 words per minute. Formal delivery needs fewer words; a fast pace can stretch to 850."}},
+    {"@type": "Question", "name": "Why does Google cut off my page title?", "acceptedAnswer": {"@type": "Answer", "text": "Google truncates titles by pixel width (roughly 600 pixels, about 50-60 characters), not a fixed character count. Keep titles under 60 characters and 600 pixels and put the keyword first."}}
+  ]
+}
+</script>
+
+<footer class="border-t border-forest/15 mt-4">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink/55">
+    <p class="serif text-lg font-semibold text-forest">WordTally</p>
+    <p>Free forever. Your words never leave your browser.</p>
+    <nav><a href="#top" class="hover:text-forest mr-5">Home</a><a href="https://fixoraa.tech" class="hover:text-forest">More Tools</a></nav>
+  </div>
+</footer>
+<script>
+/* ============================================================
+   WordTally pure text-analysis logic.
+   No DOM access here — safe to extract and unit-test in Node.
+   ============================================================ */
+// === PURE-LOGIC-BEGIN ===
+var WT_STOPWORDS = new Set(("a,an,the,and,or,but,if,then,else,when,while,where,which,who,whom,what,that,this,these,those,i,you,he,she,it,we,they,them,his,her,its,our,your,their,me,him,us,of,at,by,for,with,about,into,through,during,before,after,above,below,up,down,in,out,on,off,over,under,again,further,once,here,there,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very,can,will,just,should,now,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,would,could,ought,as,because,until,between,am,per,to,from,within,without,also,however,therefore,thus,hence,even,ever,never,always,often,sometimes,may,might,must,shall,let,say,said,one,two,three,across,among,along,upon,toward,towards,onto,despite").split(","));
+
+function wtTokenize(text) {
+  var m = (text || "").toLowerCase().match(/[\p{L}\p{N}]+(?:['\u2019][\p{L}\p{N}]+)*/gu);
+  return m || [];
+}
+function wtCountWords(text) { return wtTokenize(text).length; }
+function wtCountChars(text) { return (text || "").length; }
+function wtCountCharsNoSpaces(text) { return (text || "").replace(/\s/g, "").length; }
+function wtCountSentences(text) {
+  var t = (text || "").trim();
+  if (!t) return 0;
+  var parts = t.split(/[.!?\u2026]+/).map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+  return parts.length;
+}
+function wtCountParagraphs(text) {
+  var t = (text || "").trim();
+  if (!t) return 0;
+  return t.split(/\n\s*\n/).filter(function (p) { return p.trim().length > 0; }).length;
+}
+function wtKeywordDensity(text, n, topN) {
+  var toks = wtTokenize(text);
+  var total = toks.length;
+  var items = [];
+  var i;
+  if (n === 2) {
+    for (i = 0; i + 1 < toks.length; i++) items.push(toks[i] + " " + toks[i + 1]);
+  } else {
+    items = toks.slice();
+  }
+  var map = new Map();
+  for (i = 0; i < items.length; i++) {
+    var words = items[i].split(" ");
+    var bad = false;
+    for (var j = 0; j < words.length; j++) {
+      if (WT_STOPWORDS.has(words[j]) || words[j].length <= 2) { bad = true; break; }
+    }
+    if (bad) continue;
+    map.set(items[i], (map.get(items[i]) || 0) + 1);
+  }
+  var out = [];
+  map.forEach(function (count, phrase) {
+    out.push({ phrase: phrase, count: count, density: total ? +((count / total) * 100).toFixed(2) : 0 });
+  });
+  out.sort(function (a, b) { return b.count - a.count || (a.phrase < b.phrase ? -1 : a.phrase > b.phrase ? 1 : 0); });
+  return out.slice(0, topN || 10);
+}
+function wtCountSyllables(word) {
+  var w = (word || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (!w) return 0;
+  if (w.length <= 3) return 1;
+  w = w.replace(/(?:[^laeiouy]e|ed|es)$/, "").replace(/^y/, "");
+  var m = w.match(/[aeiouy]{1,2}/g);
+  return m ? m.length : 1;
+}
+function wtFlesch(text) {
+  var words = wtCountWords(text);
+  if (words === 0) return null;
+  var sentences = wtCountSentences(text) || 1;
+  var toks = wtTokenize(text);
+  var syl = 0;
+  for (var i = 0; i < toks.length; i++) syl += wtCountSyllables(toks[i]);
+  var wps = words / sentences, spw = syl / words;
+  return {
+    score: +(206.835 - 1.015 * wps - 84.6 * spw).toFixed(1),
+    grade: +(0.39 * wps + 11.8 * spw - 15.59).toFixed(1),
+    words: words, sentences: sentences, syllables: syl,
+    avgSentenceLen: +(wps).toFixed(1), avgSyllablesPerWord: +(spw).toFixed(2)
+  };
+}
+function wtFleschBand(score) {
+  if (score == null) return "\u2014";
+  if (score >= 90) return "Very easy to read";
+  if (score >= 80) return "Easy to read";
+  if (score >= 70) return "Fairly easy to read";
+  if (score >= 60) return "Standard / plain English";
+  if (score >= 50) return "Fairly difficult";
+  if (score >= 30) return "Difficult";
+  return "Very difficult";
+}
+function wtFormatDuration(words, wpm) {
+  if (!words || words <= 0 || !wpm || wpm <= 0) return "0 s";
+  var totalSec = Math.round(words / wpm * 60);
+  if (totalSec < 60) return totalSec + " s";
+  var m = Math.floor(totalSec / 60), s = totalSec % 60;
+  return s ? m + " min " + s + " s" : m + " min";
+}
+function wtReadingTime(words, wpm) { return wtFormatDuration(words, wpm || 200); }
+function wtSpeakingTime(words, wpm) { return wtFormatDuration(words, wpm || 140); }
+function wtWordsForMinutes(minutes, wpm) { return Math.round((minutes || 0) * (wpm || 140)); }
+function wtTitleCheck(chars, pixels) {
+  if (!chars) return { status: "empty", label: "Waiting for input", color: "slate" };
+  if (chars < 30) return { status: "short", label: "A bit short \u2014 add more detail", color: "amber" };
+  if (chars <= 60 && pixels <= 600) return { status: "good", label: "Ideal length", color: "green" };
+  if (chars <= 70 || pixels <= 680) return { status: "risky", label: "Risky \u2014 may be cut off", color: "amber" };
+  return { status: "truncate", label: "Too long \u2014 will be truncated", color: "red" };
+}
+function wtMetaCheck(chars) {
+  if (!chars) return { status: "empty", label: "Waiting for input", color: "slate" };
+  if (chars < 70) return { status: "short", label: "A bit short \u2014 Google may rewrite it", color: "amber" };
+  if (chars <= 155) return { status: "good", label: "Ideal length", color: "green" };
+  if (chars <= 170) return { status: "risky", label: "Slightly long \u2014 may be cut off", color: "amber" };
+  return { status: "truncate", label: "Too long \u2014 will be truncated", color: "red" };
+}
+// === PURE-LOGIC-END ===
+</script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var editor = $("editor"), kwN = 1, paceWpm = 140;
+  var pxCanvas = null;
+
+  function titlePixels(text) {
+    if (!pxCanvas) pxCanvas = document.createElement("canvas");
+    var ctx = pxCanvas.getContext("2d");
+    ctx.font = "20px Arial, sans-serif"; /* Google's SERP title size */
+    return Math.round(ctx.measureText(text || "").width);
+  }
+
+  /* ---- localStorage draft + goal ---- */
+  try {
+    var saved = localStorage.getItem("wordtally-draft");
+    if (saved) editor.value = saved;
+    var savedGoal = localStorage.getItem("wordtally-goal");
+    if (savedGoal) $("goalInput").value = savedGoal;
+  } catch (e) {}
+
+  function badge(el, res) {
+    var colors = {
+      slate: "bg-slate-100 text-slate-500",
+      amber: "bg-amber-100 text-amber-800",
+      green: "bg-green-100 text-green-800",
+      red: "bg-red-100 text-red-800"
+    };
+    el.className = "ml-auto px-3 py-1 rounded-full text-xs " + (colors[res.color] || colors.slate);
+    el.textContent = res.label;
+  }
+
+  function renderKeywords(text) {
+    var list = $("kwList");
+    var rows = wtKeywordDensity(text, kwN, 10);
+    if (!rows.length) {
+      list.innerHTML = '<p class="text-ink/40 italic">Type or paste some text to see your top keywords.</p>';
+      return;
+    }
+    var max = rows[0].count;
+    list.innerHTML = rows.map(function (r) {
+      var w = Math.max(4, Math.round(r.count / max * 100));
+      return '<div class="flex items-center gap-3">' +
+        '<span class="w-36 sm:w-44 truncate font-medium text-ink" title="' + r.phrase.replace(/"/g, "&quot;") + '">' + r.phrase + '</span>' +
+        '<div class="flex-1 h-2 rounded-full bg-sage overflow-hidden"><div class="h-full bg-forest kwbar rounded-full" style="width:' + w + '%"></div></div>' +
+        '<span class="w-10 text-right tabular-nums text-ink/60">' + r.count + '</span>' +
+        '<span class="w-14 text-right tabular-nums text-ink/60">' + r.density.toFixed(2) + '%</span></div>';
+    }).join("");
+  }
+
+  function renderSEO() {
+    var title = $("seoTitle").value, meta = $("seoMeta").value;
+    var px = titlePixels(title);
+    var tr = wtTitleCheck(title.length, px), mr = wtMetaCheck(meta.length);
+    $("seoTitleChars").textContent = title.length + " chars";
+    $("seoTitlePx").textContent = px + " px";
+    $("seoMetaChars").textContent = meta.length + " chars";
+    badge($("seoTitleBadge"), tr);
+    badge($("seoMetaBadge"), mr);
+    $("serpTitle").textContent = title ? (title.length > 60 ? title.slice(0, 60) + "\u2026" : title) : "Your title will appear here";
+    $("serpDesc").textContent = meta ? (meta.length > 155 ? meta.slice(0, 155) + "\u2026" : meta) : "Your meta description will appear here, just as Google would render it.";
+  }
+
+  function update() {
+    var text = editor.value;
+    try { localStorage.setItem("wordtally-draft", text); } catch (e) {}
+    var words = wtCountWords(text);
+    $("statWords").textContent = words.toLocaleString("en-US");
+    $("statChars").textContent = wtCountChars(text).toLocaleString("en-US");
+    $("statCharsNoSpace").textContent = wtCountCharsNoSpaces(text).toLocaleString("en-US");
+    $("statSentences").textContent = wtCountSentences(text).toLocaleString("en-US");
+    $("statParagraphs").textContent = wtCountParagraphs(text).toLocaleString("en-US");
+    $("statReading").textContent = wtReadingTime(words);
+
+    /* goal */
+    var goal = parseInt($("goalInput").value, 10) || 0;
+    try { localStorage.setItem("wordtally-goal", $("goalInput").value); } catch (e) {}
+    var pct = goal > 0 ? Math.min(100, Math.round(words / goal * 100)) : 0;
+    $("goalBar").style.width = pct + "%";
+    $("goalBar").style.background = pct >= 100 ? "#15803d" : "#166534";
+    $("goalLabel").textContent = words.toLocaleString("en-US") + " / " + (goal > 0 ? goal.toLocaleString("en-US") : "0") + (pct >= 100 && goal > 0 ? " \u2014 goal reached!" : "");
+
+    /* keywords */
+    renderKeywords(text);
+
+    /* readability */
+    var f = wtFlesch(text);
+    if (!f) {
+      $("fleschScore").textContent = "\u2014"; $("fleschBand").textContent = "\u2014";
+      $("fleschGrade").textContent = "\u2014"; $("avgSentLen").textContent = "\u2014";
+      $("avgWordLen").textContent = "\u2014"; $("fleschMarker").style.left = "50%";
+    } else {
+      $("fleschScore").textContent = f.score;
+      $("fleschBand").textContent = wtFleschBand(f.score);
+      $("fleschGrade").textContent = "Grade " + f.grade;
+      $("avgSentLen").textContent = f.avgSentenceLen + " words";
+      $("avgWordLen").textContent = f.avgSyllablesPerWord + " syllables";
+      var clamped = Math.max(0, Math.min(100, f.score));
+      $("fleschMarker").style.left = "calc(" + clamped + "% - 3px)";
+    }
+
+    /* speaking */
+    $("speakTime").textContent = wtSpeakingTime(words, paceWpm);
+    var mins = parseFloat($("talkMin").value) || 0;
+    $("talkWords").textContent = wtWordsForMinutes(mins, paceWpm).toLocaleString("en-US") + " words";
+
+    renderSEO();
+  }
+
+  /* ---- events ---- */
+  var t = null;
+  editor.addEventListener("input", function () { clearTimeout(t); t = setTimeout(update, 120); });
+  $("goalInput").addEventListener("input", update);
+  $("talkMin").addEventListener("input", update);
+  $("seoTitle").addEventListener("input", renderSEO);
+  $("seoMeta").addEventListener("input", renderSEO);
+
+  $("kwTab1").addEventListener("click", function () { kwN = 1; $("kwTab1").setAttribute("aria-selected", "true"); $("kwTab2").setAttribute("aria-selected", "false"); renderKeywords(editor.value); });
+  $("kwTab2").addEventListener("click", function () { kwN = 2; $("kwTab2").setAttribute("aria-selected", "true"); $("kwTab1").setAttribute("aria-selected", "false"); renderKeywords(editor.value); });
+
+  var paceBtns = document.querySelectorAll(".pacebtn");
+  paceBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      paceWpm = parseInt(b.getAttribute("data-wpm"), 10);
+      paceBtns.forEach(function (x) {
+        var on = x === b;
+        x.setAttribute("aria-checked", on ? "true" : "false");
+        x.classList.toggle("bg-forest", on); x.classList.toggle("text-paper", on);
+      });
+      update();
+    });
+  });
+
+  $("btnCopy").addEventListener("click", function () {
+    var text = editor.value, words = wtCountWords(text), f = wtFlesch(text);
+    var report = "WordTally report\n" +
+      "Words: " + words + "\nCharacters: " + wtCountChars(text) +
+      "\nCharacters (no spaces): " + wtCountCharsNoSpaces(text) +
+      "\nSentences: " + wtCountSentences(text) + "\nParagraphs: " + wtCountParagraphs(text) +
+      "\nReading time: " + wtReadingTime(words) + "\nSpeaking time: " + wtSpeakingTime(words, paceWpm) +
+      (f ? "\nFlesch Reading Ease: " + f.score + " (" + wtFleschBand(f.score) + "), grade " + f.grade : "") +
+      "\nTop keywords: " + wtKeywordDensity(text, 1, 5).map(function (r) { return r.phrase + " (" + r.density.toFixed(1) + "%)"; }).join(", ");
+    (navigator.clipboard ? navigator.clipboard.writeText(report) : Promise.reject()).then(
+      function () { $("btnCopy").textContent = "Copied!"; setTimeout(function () { $("btnCopy").textContent = "Copy report"; }, 1500); },
+      function () { $("btnCopy").textContent = "Copy failed"; setTimeout(function () { $("btnCopy").textContent = "Copy report"; }, 1500); });
+  });
+  $("btnDownload").addEventListener("click", function () {
+    var blob = new Blob([editor.value], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "wordtally-draft.txt";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  });
+  $("btnClear").addEventListener("click", function () {
+    if (!editor.value || confirm("Clear your text? This cannot be undone.")) { editor.value = ""; update(); }
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
